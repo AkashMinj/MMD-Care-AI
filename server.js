@@ -140,11 +140,11 @@ Language Context: Respond naturally in ${userLanguage || 'en'}.`
 
         // 4. Send payload to Tambo AI
         // 4. Send payload to Tambo AI
-        const response = await fetch('https://api.tambo.co/v1/chat/completions', {
+        const response = await fetch('https://api.tambo.ai/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${TAMBO_API_KEY.trim()}`
+                'Authorization': 'Bearer ${TAMBO_API_KEY.trim()}'
             },
             body: JSON.stringify({
                 model: 'gpt-5.2',

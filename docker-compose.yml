@@ -20,18 +20,15 @@ services:
   backend:
     build: .
     container_name: mmdcare_backend
-    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
     environment:
-      PORT: 3000
-      DB_HOST: mysql_db
-      DB_USER: mmduser
-      DB_PASSWORD: mmdpassword
-      DB_NAME: mmdcare_db
-      TAMBO_API_KEY: ${TAMBO_API_KEY}
+      - DB_HOST=mysql_db
+      - TAMBO_API_KEY=${TAMBO_API_KEY}
     depends_on:
       - mysql_db
-    networks:
-      - mmdcare_network
 
   # 3. Nginx Reverse Proxy
   nginx:
