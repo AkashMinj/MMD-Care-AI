@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # 1. Database Service
+  mysql_db:
+    image: mysql:8.0
+    container_name: mmdcare_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mmdcare_db
+      MYSQL_USER: mmduser
+      MYSQL_PASSWORD: mmdpassword
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - mmdcare_network
+
+  # 2. Node.js Backend API
+  backend:
+    build: .
+    container_name: mmdcare_backend
+    restart: always
+    environment:
+      PORT: 3000
+      DB_HOST: mysql_db
+      DB_USER: mmduser
+      DB_PASSWORD: mmdpassword
+      DB_NAME: mmdcare_db
+      TAMBO_API_KEY: ${TAMBO_API_KEY}
+    depends_on:
+      - mysql_db
+    networks:
+      - mmdcare_network
+
+  # 3. Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: mmdcare_nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - .:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+    networks:
+      - mmdcare_network
+
+volumes:
+  mysql_data:
+
+networks:
+  mmdcare_network:
+    driver: bridge
