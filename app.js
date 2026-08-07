@@ -290,41 +290,49 @@ const app = {
         document.getElementById('emergencyBanner').classList.add('hidden');
     },
 
-    async getAIResponse(userMessage) {
-        const lower = userMessage.toLowerCase();
-        if (this.safety.blockedContent.some(w => lower.includes(w))) {
-            return "I am unable to advise on specific medications or dosages. Please consult a qualified doctor or psychiatrist for medical options.";
+async getAIResponse(userMessage) {
+        const lowerMessage = userMessage.toLowerCase();
+
+        // Safety check: Block medication queries safely
+        if (this.safety.blockedContent.some(word => lowerMessage.includes(word))) {
+            return this.getMedicationResponse();
         }
 
-        if (this.safety.harmfulAdvice.some(w => lower.includes(w))) {
-            return "You deserve support and gentleness, not harm. Let's look at healthy alternatives together.";
+        // Safety check: Block harm recommendations
+        if (this.safety.harmfulAdvice.some(phrase => lowerMessage.includes(phrase))) {
+            return this.getHarmPreventionResponse();
         }
 
         try {
+            // Send request to Express backend Proxy (/api/chat)
             const response = await fetch('/api/chat', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     userEmail: this.state.currentUser ? this.state.currentUser.email : 'anonymous@mmdcare.com',
                     userMessage: userMessage,
                     userLanguage: this.state.currentLanguage,
-                    messages: [
-                        ...this.state.messages.slice(-6).map(m => ({
-                            role: m.sender === 'user' ? 'user' : 'assistant',
-                            content: m.text
-                        })),
-                        { role: 'user', content: userMessage }
-                    ]
+                    messages: this.state.messages.slice(-6).map(m => ({
+                        role: m.sender === 'user' ? 'user' : 'assistant',
+                        content: m.text
+                    }))
                 })
             });
 
-            if (!response.ok) throw new Error('API server error');
+            if (!response.ok) {
+                throw new Error(`Server returned status: ${response.status}`);
+            }
+
             const data = await response.json();
             return data.choices[0].message.content;
+
         } catch (error) {
-            console.error('AI Response Error:', error);
-            return "I hear how much you're managing right now. I'm here to listen—what feels like the heaviest thing on your mind right now?";
+            console.error('Fetch error calling /api/chat backend:', error);
+            return "I'm having trouble connecting to my AI service right now. Please try again in a moment.";
         }
+    
     }
 };
 
