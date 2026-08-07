@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MMDCARE - Your Safe Space to Talk</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#fdf2f8', 100: '#fce7f3', 200: '#fbcfe8', 300: '#f9a8d4', 400: '#f472b6', 500: '#ec4899', 600: '#db2777', 700: '#be185d', 800: '#9d174d', 900: '#831843' },
+                        sage: { 50: '#f4f7f4', 100: '#e3ebe3', 200: '#c5d9c5', 300: '#9bbf9b', 400: '#729f72', 500: '#528252', 600: '#3d663d', 700: '#335133', 800: '#2b412b', 900: '#253625' },
+                        lavender: { 50: '#f5f3ff', 100: '#ede9fe', 200: '#ddd6fe', 300: '#c4b5fd', 400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9', 800: '#5b21b6', 900: '#4c1d95' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="hero-gradient min-h-screen transition-colors duration-500">
+    <!-- Emergency Banner -->
+    <div id="emergencyBanner" class="emergency-banner text-white px-4 py-3 hidden fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                <div>
+                    <p class="font-semibold" data-translate="emergency_title">If you're in crisis, help is available now</p>
+                    <p class="text-sm opacity-90" data-translate="emergency_subtitle">You are not alone. Please reach out to these services:</p>
+                </div>
+            </div>
+            <button onclick="app.closeEmergencyBanner()" class="p-2 hover:bg-white/20 rounded-lg transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div class="max-w-7xl mx-auto mt-2 grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+            <a href="tel:988" class="flex items-center gap-2 bg-white/20 px-3 py-2 rounded-lg hover:bg-white/30 transition-colors">
+                <i data-lucide="phone" class="w-4 h-4"></i>
+                <span>Suicide & Crisis Lifeline: 988</span>
+            </a>
+            <a href="sms:741741" class="flex items-center gap-2 bg-white/20 px-3 py-2 rounded-lg hover:bg-white/30 transition-colors">
+                <i data-lucide="message-square" class="w-4 h-4"></i>
+                <span>Crisis Text Line: Text HOME to 741741</span>
+            </a>
+            <a href="tel:911" class="flex items-center gap-2 bg-white/20 px-3 py-2 rounded-lg hover:bg-white/30 transition-colors">
+                <i data-lucide="ambulance" class="w-4 h-4"></i>
+                <span>Emergency Services: 911</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="glass fixed w-full z-40 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-lavender-400 to-primary-400 flex items-center justify-center shadow-lg">
+                        <i data-lucide="heart-handshake" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <span class="text-2xl font-bold font-display gradient-text">MMDCARE</span>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <button onclick="app.toggleTheme()" class="p-3 rounded-xl hover:bg-lavender-100 dark:hover:bg-slate-700 transition-all duration-300 group" aria-label="Toggle theme">
+                        <i data-lucide="sun" class="w-5 h-5 hidden dark:block text-yellow-400 group-hover:rotate-180 transition-transform duration-500"></i>
+                        <i data-lucide="moon" class="w-5 h-5 block dark:hidden text-slate-600 group-hover:rotate-12 transition-transform duration-300"></i>
+                    </button>
+
+                    <div class="relative">
+                        <select id="languageSelect" onchange="app.changeLanguage(this.value)" class="language-select pl-4 pr-10 py-2 rounded-xl border border-lavender-200 dark:border-slate-600 bg-white/50 dark:bg-slate-800/50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-lavender-400 transition-all cursor-pointer min-w-[140px]">
+                            <option value="en">🇺🇸 English</option>
+                            <option value="es">🇪🇸 Español</option>
+                            <option value="fr">🇫🇷 Français</option>
+                            <option value="de">🇩🇪 Deutsch</option>
+                            <option value="hi">🇮🇳 हिंदी</option>
+                            <option value="zh">🇨🇳 中文</option>
+                            <option value="ar">🇸🇦 العربية</option>
+                        </select>
+                    </div>
+
+                    <button onclick="app.openAuthModal()" id="authButton" class="px-6 py-3 rounded-xl bg-gradient-to-r from-lavender-500 to-primary-500 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2">
+                        <i data-lucide="user" class="w-5 h-5"></i>
+                        <span data-translate="sign_in">Sign In / Sign Up</span>
+                    </button>
+
+                    <div id="userProfile" class="hidden flex items-center gap-3">
+                        <div class="text-right">
+                            <p class="text-sm font-semibold dark:text-white" id="userNameDisplay">User</p>
+                            <button onclick="app.signOut()" class="text-xs text-lavender-600 dark:text-lavender-400 hover:underline">Sign Out</button>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-lavender-400 to-primary-400 flex items-center justify-center text-white font-bold">
+                            <span id="userAvatar">U</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+            <div class="blob w-96 h-96 bg-lavender-300 dark:bg-lavender-700 top-20 -left-20"></div>
+            <div class="blob w-80 h-80 bg-primary-200 dark:bg-primary-800 top-40 -right-20" style="animation-delay: -2s;"></div>
+            <div class="blob w-72 h-72 bg-sage-300 dark:bg-sage-700 bottom-20 left-1/3" style="animation-delay: -4s;"></div>
+
+            <div class="relative z-10 max-w-5xl mx-auto px-4 text-center">
+                <div class="glass rounded-3xl p-12 md:p-16 shadow-2xl border border-white/20 dark:border-slate-700/50">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lavender-100 dark:bg-lavender-900/50 text-lavender-700 dark:text-lavender-300 text-sm font-medium mb-8">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        <span data-translate="ai_powered">AI-Powered Mental Health Support</span>
+                    </div>
+
+                    <h1 class="text-5xl md:text-7xl font-bold font-display mb-6 leading-tight">
+                        <span class="gradient-text" data-translate="your_safe_space">YOUR SAFE SPACE</span>
+                        <br>
+                        <span class="text-slate-700 dark:text-slate-200" data-translate="to_talk">TO TALK</span>
+                    </h1>
+
+                    <p class="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed" data-translate="hero_description">
+                        A compassionate AI companion here to listen, support, and guide you through life's challenges. 
+                        Available 24/7, completely confidential, and designed with your wellbeing in mind.
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button onclick="app.startChat()" class="group px-8 py-4 rounded-2xl bg-gradient-to-r from-lavender-500 to-primary-500 text-white font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3 animate-glow">
+                            <span data-translate="start_talking">START TALKING</span>
+                            <i data-lucide="message-circle-heart" class="w-6 h-6 group-hover:animate-bounce"></i>
+                        </button>
+                    </div>
+
+                    <div class="mt-12 flex flex-wrap justify-center gap-8 items-center opacity-70">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="shield-check" class="w-5 h-5 text-sage-600"></i>
+                            <span class="text-sm font-medium text-slate-600 dark:text-slate-400">100% Confidential</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="clock" class="w-5 h-5 text-lavender-600"></i>
+                            <span class="text-sm font-medium text-slate-600 dark:text-slate-400">Available 24/7</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="heart" class="w-5 h-5 text-primary-500"></i>
+                            <span class="text-sm font-medium text-slate-600 dark:text-slate-400">Judgment-Free Zone</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass border-t border-lavender-100 dark:border-slate-800 py-12 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="border-t border-lavender-200 dark:border-slate-700 pt-8">
+                <p class="text-center text-slate-500 dark:text-slate-400 mb-4" data-translate="developed_by">Developed with 💜 by</p>
+                <div class="flex justify-center">
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/50 dark:bg-slate-800/50">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-lavender-400 to-primary-400 flex items-center justify-center text-white text-sm font-bold">AM</div>
+                        <span class="font-medium text-slate-700 dark:text-slate-300">Akash Minj</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="app.closeAuthModal()"></div>
+        <div class="relative min-h-screen flex items-center justify-center p-4">
+            <div class="glass rounded-3xl p-8 md:p-12 max-w-md w-full shadow-2xl border border-white/30 dark:border-slate-700/50">
+                <button onclick="app.closeAuthModal()" class="absolute top-4 right-4 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5 text-slate-500"></i>
+                </button>
+
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold text-slate-800 dark:text-white" data-translate="welcome_back">Welcome to MMDCARE</h2>
+                    <p class="text-slate-500 dark:text-slate-400 mt-2" data-translate="auth_subtitle">Sign in to save your conversations</p>
+                </div>
+
+                <form onsubmit="app.handleSignIn(event)" class="space-y-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" data-translate="your_name">Your Name</label>
+                        <input type="text" id="authName" required class="w-full px-4 py-3 rounded-xl border border-lavender-200 dark:border-slate-600 bg-white/50 dark:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-lavender-400 transition-all" placeholder="Enter your name">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" data-translate="email">Email Address</label>
+                        <input type="email" id="authEmail" required class="w-full px-4 py-3 rounded-xl border border-lavender-200 dark:border-slate-600 bg-white/50 dark:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-lavender-400 transition-all" placeholder="you@example.com">
+                    </div>
+                    <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-lavender-500 to-primary-500 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                        <span data-translate="continue">Continue</span>
+                    </button>
+                </form>
+
+                <button onclick="app.continueAnonymous()" class="w-full py-3 rounded-xl border-2 border-lavender-300 dark:border-slate-600 text-lavender-700 dark:text-lavender-300 font-semibold hover:bg-lavender-50 dark:hover:bg-slate-700 transition-all duration-300 flex items-center justify-center gap-2">
+                    <i data-lucide="user-x" class="w-5 h-5"></i>
+                    <span data-translate="be_anonymous">Be Anonymous</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Interface -->
+    <div id="chatInterface" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-lavender-50/95 to-primary-50/95 dark:from-slate-900/95 dark:to-slate-800/95 backdrop-blur-xl"></div>
+        <div class="relative h-full flex flex-col">
+            <div class="glass border-b border-lavender-200 dark:border-slate-700 px-4 sm:px-6 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <h2 class="font-bold text-xl text-slate-800 dark:text-white">MMDCARE</h2>
+                </div>
+                <button onclick="app.closeChat()" class="p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                    <i data-lucide="x" class="w-6 h-6 text-slate-500"></i>
+                </button>
+            </div>
+
+            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 sm:p-6 scroll-hidden">
+                <div class="max-w-4xl mx-auto space-y-6"></div>
+            </div>
+
+            <div id="typingIndicator" class="hidden max-w-4xl mx-auto px-4 pb-2 text-slate-400">Thinking...</div>
+
+            <div class="glass border-t border-lavender-200 dark:border-slate-700 p-4">
+                <form onsubmit="app.sendMessage(event)" class="max-w-4xl mx-auto flex gap-3">
+                    <input type="text" id="messageInput" required class="flex-1 px-5 py-4 rounded-2xl border border-lavender-200 dark:border-slate-600 bg-white/80 dark:bg-slate-800/80 focus:outline-none focus:ring-2 focus:ring-lavender-400 transition-all text-slate-700 dark:text-slate-200" placeholder="Type your message...">
+                    <button type="submit" class="px-6 py-4 rounded-2xl bg-gradient-to-r from-lavender-500 to-primary-500 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                        <span data-translate="send">Send</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-4 right-4 z-50 opacity-0 transition-all duration-300">
+        <div class="glass rounded-xl px-6 py-4 shadow-2xl border border-white/30 dark:border-slate-700/50 flex items-center gap-3">
+            <span id="toastMessage" class="font-medium text-slate-800 dark:text-white">Done</span>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
