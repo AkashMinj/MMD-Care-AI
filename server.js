@@ -95,7 +95,7 @@ app.get('/api/chats/:email', async (req, res) => {
 // API 3: Handle AI Query & MySQL Storage
 app.post('/api/chat', async (req, res) => {
     try {
-        const { userEmail, userMessage, messages, userLanguage } = req.body;
+        const { userEmail, userMessage, messages = [], userLanguage } = req.body;
         const fetch = (await import('node-fetch')).default;
 
         // 1. Save User Message to MySQL Database
@@ -127,31 +127,41 @@ SAFETY & BOUNDARIES:
 Language Context: Respond naturally in ${userLanguage || 'en'}.`
         };
 
-        // 3. Send payload to Tambo AI
+        // 3. Map frontend conversation array to standard API role/content structure
+        const formattedHistory = Array.isArray(messages) ? messages.map(m => ({
+            role: m.role || (m.sender === 'user' ? 'user' : 'assistant'),
+            content: m.content || m.text || ''
+        })) : [];
+
+        const payloadMessages = [
+            systemInstruction,
+            ...formattedHistory
+        ];
+
+        // 4. Send payload to Tambo AI
         const response = await fetch('https://api.tambo.co/v1/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${TAMBO_API_KEY}`
+                'Authorization': `Bearer ${TAMBO_API_KEY.trim()}`
             },
             body: JSON.stringify({
-                messages: [
-                    systemInstruction,
-                    ...messages
-                ],
+                messages: payloadMessages,
                 temperature: 0.7,
                 max_tokens: 600
             })
         });
 
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`Tambo API raw error response (${response.status}):`, errorText);
             throw new Error(`Tambo API error: ${response.status}`);
         }
 
         const data = await response.json();
         const aiResponseText = data.choices[0].message.content;
 
-        // 4. Save AI Response to MySQL Database
+        // 5. Save AI Response to MySQL Database
         if (userEmail && userEmail !== 'anonymous@mmdcare.com') {
             await Message.create({
                 userEmail,
