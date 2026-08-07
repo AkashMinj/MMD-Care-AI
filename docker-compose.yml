@@ -22,13 +22,18 @@ services:
     container_name: mmdcare_backend
     ports:
       - "3000:3000"
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     env_file:
       - .env
     environment:
       - DB_HOST=mysql_db
-      - TAMBO_API_KEY=${TAMBO_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
       - mysql_db
+    networks:
+      - mmdcare_network
 
   # 3. Nginx Reverse Proxy
   nginx:
